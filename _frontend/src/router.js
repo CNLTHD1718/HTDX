@@ -22,6 +22,24 @@ var router = new Router({
 			component: Login
 		},
 		{
+			path: '/App1',
+			name: 'App1',
+			component: App1,
+			meta: { requiresAuth: true, App1Auth: true }
+		},
+		{
+			path: '/App2',
+			name: 'App2',
+			component: App2,
+			meta: { requiresAuth: true, App2Auth: true }
+		},
+		{
+			path: '/App3',
+			name: 'App3',
+			component: App3,
+			meta: { requiresAuth: true, App3Auth: true }
+		},
+		{
 			path: '*',
 			redirect: { name: 'not found' }
 		}
