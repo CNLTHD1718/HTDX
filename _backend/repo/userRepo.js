@@ -1,5 +1,6 @@
 var DbFunction = require('../fn/sqlite3-db');
-class UserRepo {
+
+class TestRepo {
     constructor() {
         this.createTable();
     }
@@ -16,22 +17,32 @@ class UserRepo {
              rfTokenTime INTERGER,
              Lat REAL,
              Lng REAL,
-             Status INTERGER,
-             Type INTERGER
+             Status INTERGER
          ) `;
         return DbFunction.run(sql);
     }
 
     insert(obj) {
-        return DbFunction.run(`INSERT INTO User  (Name, Username,Password,Email,Address,Status,INTERGER) 
-                               VALUES (?,?,?,?,?,?,?)`,
-            [obj.Name, obj.Username, obj.Password, obj.Email, obj.Address, 0,obj,Type]);
+        return DbFunction.run(`INSERT INTO User  (Name, Username,Password,Email,Address,Status) 
+                               VALUES (?,?,?,?,?,?)`,
+            [obj.Name, obj.Username, obj.Password, obj.Email, obj.Address, 0]);
+    }
+    updateStatus(obj) {
+        return DbFunction.run(`UPDATE User SET Status = ? WHERE Id = ?`,
+            [obj.Status, obj.Id]);
+    }
+    updateLocation(obj) {
+        return DbFunction.run(`UPDATE User SET Lat = ?, Lng = ? WHERE Id = ?`,
+            [obj.Lat, obj.Lng, obj.Id]);
+    }
+    delete(id) {
+        return DbFunction.run(`UPDATE User SET Status = ? WHERE Id = ?`, [-1, id]);
     }
     load(id) {
         return DbFunction.getOne(`SELECT * FROM User WHERE Id = ?`, [id])
     }
     loadAll() {
-        return DbFunction.getAll(`SELECT * FROM  User `);//Status != (-1)
+        return DbFunction.getAll(`SELECT * FROM  User `);//state != (-1)
     }
     login(obj) {
         return DbFunction.getOne(`SELECT * FROM User  WHERE Username = ? AND Password = ? `,
@@ -43,4 +54,4 @@ class UserRepo {
     }
 }
 
-module.exports = new UserRepo();
+module.exports = TestRepo;
