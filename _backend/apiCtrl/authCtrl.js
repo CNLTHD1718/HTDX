@@ -1,14 +1,13 @@
 var express = require('express'),
     router = express.Router(),
-
+    UserRepo = require('../repo/userRepos'),
     AuthRepo = require('../repo/authRepos');
 
 router.post('/new_token', (req, res) => {
     var user_rf_token = req.body.ref_token;
     var user_id = req.body.id;
-    console.log('new token' + req.body);
-    if (user_rf_token && user_id) {
-        UserRepo.getByToken(user_id, user_rf_token)
+    if (user_ref_token && user_id) {
+        UserRepo.getByToken(user_id, user_ref_token)
             .then(user => {
                 var acToken = AuthRepo.generateAccessToken(user);
                 var user_res = {
@@ -37,29 +36,25 @@ router.post('/login', (req, res) => {
         Username: req.body.Username,
         Password: req.body.Password
     }
-    console.log(obj);
     //var type = req.body.Type;
-    UserRepo.login(obj).then(user => {
-        console.log('check login')
-        console.log(user);
+    UserRepo.login().then(user => {
         if (user) {
             var acToken = AuthRepo.generateAccessToken(user);
             var rfToken = AuthRepo.generateRefreshToken();
-            console.log('logged')
-            console.log(user)
+
             AuthRepo.updateRefreshToken(user.Id, rfToken)
                 .then(() => {
                     var user_res = {
                         auth: true,
                         user: {
-                            Id: user.Id,
+                            uid: user.Id,
                             Username: user.Username,
-                            Type: user.Type
+                            //type=user.type
                         },
                         access_token: acToken,
-                        refresh_token: rfToken
+                        refresh_token: rfTokenF
                     };
-                    // if (user.Type == 4) {
+                    // if (user.Type == 2) {
                     //     user_res.user.status = user.status;
                     // }
                     res.json(user_res);
@@ -67,17 +62,15 @@ router.post('/login', (req, res) => {
                 .catch(err => {
                     res.statusCode = 500;
                     res.end('View error log on console');
-                    console.log('err here' + err)
                 })
         } else {
             res.status(404).send({
-                msg: 'Not Found Username or Password'
+                msg: 'not found'
             })
-            console.log('not found user')
         }
     }).catch(err => {
-        res.end('err login |' + err);
-        console.log('err login |' +err);
+        res.end(errF);
+        console.log(err);
     })
 })
 
