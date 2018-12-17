@@ -9,35 +9,38 @@ import Login from './views/auth/Login.vue';
 
 Vue.use(Router);
 
-var router = new Router({
+export default new Router({
+	mode: 'history',
 	routes: [
 		{
 			path: '/',
 			name: 'Home',
 			component: Home
-		}
-		{
-			path: '/Login',
-			name: 'Login',
-			component: Login
 		},
 		{
 			path: '/App1',
 			name: 'App1',
-			component: App1,
-			meta: { requiresAuth: true, App1Auth: true }
+			component: App1
 		},
 		{
 			path: '/App2',
 			name: 'App2',
-			component: App2,
-			meta: { requiresAuth: true, App2Auth: true }
+			component: App2
 		},
 		{
 			path: '/App3',
 			name: 'App3',
-			component: App3,
-			meta: { requiresAuth: true, App3Auth: true }
+			component: App3
+		},
+		{
+			path: '/App4',
+			name: 'App4',
+			component: App4
+		},
+		{
+			path: '/Login',
+			name: 'Login',
+			component: Login
 		},
 		{
 			path: '*',
@@ -45,5 +48,3 @@ var router = new Router({
 		}
 	]
 });
-
-export default router;

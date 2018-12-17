@@ -8,10 +8,10 @@ var eventGetAll = (io, client) => {
             io.sockets.emit('load-new-request', rows);
         })
         .catch(err => {
-            io.sockets.emit('event-request-reciever', JSON.stringify({
-                msg: 'error to get list request-reciever',
-                err: err
-            }));
+            // io.sockets.emit('event-request-reciever',{
+            //     msg: 'error to get list request waiting',
+            //     err: err
+            // });
             console.log(err);
         })
 }
@@ -19,20 +19,18 @@ var eventGetAll = (io, client) => {
 var eventGetAllReq = (io, client) => {
     requestRepo.LoadAll()
         .then(rows => {
-            io.sockets.emit('event-request-management', JSON.stringify(rows));
+            io.sockets.emit('load-all-request', JSON.stringify(rows));
         })
         .catch(err => {
-            io.sockets.emit('event-request-management', JSON.stringify({
-                msg: 'error to get list request-reciever',
-                err: err
-            }));
-            console.log(err);
+            // io.sockets.emit('event-request-management', JSON.stringify({
+            //     msg: 'error to get list request-reciever',
+            //     err: err
+            // }));
+            console.log('err' + err);
         })
 }
 
 module.exports.response = function (io, client) {
-    //console.log(client.u_type);
-
     client.on('SEND_MESSAGE', function (data) {
         io.emit('MESSAGE', data)
     });
@@ -41,15 +39,12 @@ module.exports.response = function (io, client) {
         //newReq.iat = moment().unix();
         requestRepo.insert(data)
             .then(() => {
-                console.log('even-add-request success');
-                eventGetAll(io,client);
+                console.log('add-new-request success');
+                eventGetAll(io, client);
             })
             .catch(err => {
-                console.log(err);
+                console.log('err' + err);
             })
-        //io.emit('MESSAGE', data)
-
-        //io.emit('load-new-request', data)
     });
 
    
