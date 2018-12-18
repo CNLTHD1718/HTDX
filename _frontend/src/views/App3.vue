@@ -81,6 +81,25 @@
       </div>
     </div>
 
+    <div class="col s6">
+      <button @click="handleRequest">test 1</button>
+      <button @click="handleRequest2">test 2</button>
+      <button @click="createFakeMoving">test 3</button>
+      <button @click="startRouteAnimation">test 4</button>
+      <gmap-map
+        ref="mapRef"
+        :center="center"
+        :zoom="12"
+        style="width:100%;  height: 400px;"
+      >
+        <gmap-marker
+          ref="myMarker"
+          v-bind:position="oldPosition"
+          :draggable="true"
+          :icon="{ url: require('../assets/automobile.png')}"
+        ></gmap-marker>
+      </gmap-map>
+    </div>
 
   </div>
 </template>
@@ -123,6 +142,45 @@ export default {
 			autoDriveSteps: [],
 			speedFactor: 10
 		};
+	},
+
+	mounted() {
+		var self = this;
+		axios
+			.get('http://localhost:1234/Request')
+			.then(res => {
+				self.listRequest = res.data;
+			})
+			.catch(err => {
+				console.log(err);
+			});
+		axios
+			.get('http://localhost:1234/User2')
+			.then(res => {
+				self.listDriver = res.data;
+			})
+			.catch(err => {
+				console.log(err);
+			});
+
+		self.geolocate(); //create map
+
+		self.socket.on('load-new-request', data => {
+			// load list request
+			console.log(data);
+			self.listRequest = data;
+		});
+
+		self.socket.on('load-all-driver', data => {
+			//load list driver
+			console.log(data);
+			self.listDriver = data;
+		});
+
+		self.socket.on('hi there', data => {
+			console.log(data);
+			alert('123');
+		});
 	},
 
 	methods: {
@@ -259,7 +317,28 @@ export default {
 				}, i * 1000);
 
 			}
+		},
+		updateFakeMoving(movingPosition) {
+			var self = this;
+			setTimeout(function() {
+				self.marker.setPosition(movingPosition);
+				console.log(movingPosition);
+			}, 2000);
+		},
+		geolocate: function() {
+			var self = this;
+			navigator.geolocation.getCurrentPosition(position => {});
+			setTimeout(function() {
+				self.directionsDisplay = new google.maps.DirectionsRenderer();
+				self.marker = self.$refs.myMarker.$markerObject;
+				// self.marker = new google.maps.Marker({
+				// 	position: new google.maps.LatLng(50.8, 4.7),
+				// 	map: self.$refs.mapRef.$mapObject
+				// });
+				//console.log(self.marker);
+			}, 2000); // async this after create map
 		}
+	}
 };
 </script>
 
