@@ -63,3 +63,70 @@ router.post('/add', (req, res) => {//add using post
     });
 
 });
+
+router.post('/identify', (req, res) => {//identify location 
+    var obj = {
+        Id: req.body.Id,
+        Lat: req.body.Lat,
+        Lng: req.body.Lng
+    }
+    console.log(obj);
+
+    requestRepo.updateLocate(obj).then(() => {
+        res.status(201).send(JSON.stringify({
+            stt: 'success',
+            msg: 'add success',
+            obj: obj
+        }));
+
+    }).catch(err => {
+        res.status(404).send(JSON.stringify({
+            sst: 'error',
+            err: err
+        }));
+    });
+
+});
+
+router.post('/del', (req, res) => {
+    var id = req.body.id;
+    console.log(id)
+    requestRepo.delete(id).then(() => {
+
+        res.status(201).send(JSON.stringify({
+            stt: 'success',
+            msg: 'remove success'
+        }));
+
+    }).catch(err => {
+        res.status(404).send(JSON.stringify({
+            sst: 'error',
+            err: err
+        }));
+    });
+
+});
+
+router.post('/update', (req, res) => {
+    var obj = {
+        id: req.body.id,
+        username: req.body.username
+    }
+    console.log(obj)
+    requestRepo.update(obj).then(() => {
+
+        res.status(201).send(JSON.stringify({
+            stt: 'success',
+            msg: 'update success'
+        }));
+
+    }).catch(err => {
+        res.status(404).send(JSON.stringify({
+            sst: 'error',
+            err: err
+        }));
+    });
+
+});
+
+module.exports = router;
