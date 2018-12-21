@@ -96,6 +96,7 @@ export default {
 				lng: location.latLng.lng()
 			};
 			//alert(location.latLng.lat());
+			M.toast({ html: 'Changed location success', classes: 'light-blue accent-3' });
 		},
 
 		locatePlace() {
