@@ -7,6 +7,8 @@ const express = require('express'),
     PORT = process.env.PORT || 1234;
 
 
+//var io = require('socket.io', { origins: "*" }).listen(PORT + 1);
+
 var requestCtrl = require('./apiCtrl/requestCtrl'),
     userCtrl = require('./apiCtrl/userCtrl'),
     authCtrl = require('./apiCtrl/authCtrl'),
@@ -22,7 +24,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use('/Request/', requestCtrl);
-app.use('/User/', userCtrl);
+app.use('/User/', AuthRepo.verifyAccessToken, userCtrl);
+app.use('/User2/', userCtrl);
 app.use('/Auth', authCtrl);
 
 app.get('/', (req, res) => {
@@ -38,7 +41,11 @@ const server = app.listen(PORT, () => {
 
 const io = require('socket.io')(server);
 
+var clients = [];
 io.on('connection', client => {
     request_io.response(io, client);
+    console.log('id : '+client.id)
+    //clients.push(client.id);
+    //client.emit('hi there', JSON.stringify('user'));    
 });
 
