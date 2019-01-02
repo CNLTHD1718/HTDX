@@ -54,7 +54,77 @@
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
 	 crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.12/handlebars.min.js"></script>
+	<script type="text/javascript">
+		window.onload = function () {
+			$.ajax({
+				type: 'GET',
+				url: 'http://localhost:1234/api/test/all',
+				dataType: 'json',
+				timeout: 5000
+			}).done(function (data) {
+				// console.log(data);
+				var source = document.getElementById('user-template').innerHTML;
+				var template = Handlebars.compile(source);
+				var html = template(data);
+				// console.log(html);
+				$('#list').html(html);
+			});
+		}
 
+
+
+		$('#list').on('click', '.del', function () {
+			// alert('msg');
+			var trToBeDel = $(this).closest('tr');
+			var id = $(this).data('id');
+			var objToPost = {
+				id: id
+			}
+
+			var jsonToPost = JSON.stringify(objToPost);
+
+			$.ajax({
+				type: 'POST',
+				url: 'http://localhost:1234/api/test/del',
+				contentType: 'application/json',
+				dataType: 'json',
+				data: jsonToPost,
+				timeout: 10000,
+			}).done(function (data) {
+				console.log(data);
+				trToBeDel.remove();
+			}).fail(function (xhr, status, err) {
+				console.log(status);
+				console.log(err);
+			});
+		})
+
+
+		$('#list').on('click', '.update', function () {
+			// alert('msg');
+			var id = $(this).data('id');
+			var username = $(this).data('username');
+			var objToPost = {
+				id: id,
+				username: username
+			}
+
+			var jsonToPost = JSON.stringify(objToPost);
+			$.ajax({
+				type: 'POST',
+				url: 'http://localhost:1234/api/test/update',
+				contentType: 'application/json',
+				dataType: 'json',
+				data: jsonToPost,
+				timeout: 10000,
+			}).done(function (data) {
+				console.log(data);
+			}).fail(function (xhr, status, err) {
+				console.log(status);
+				console.log(err);
+			});
+		})
+	</script>
 </body>
 
 </html>
