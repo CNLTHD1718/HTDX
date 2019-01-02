@@ -1,81 +1,100 @@
 <template>
-  <div class="row">
-    <div
-      class="col s12"
-      style="padding-top:10px"
-    >
-      <div class="col s3">
-        <blockquote>
-         List request
-        </blockquote>
+  <div
+    class="container-fluid"
+    style="    background-color: #f2f2f2;"
+  >
+    <div class="row">
+      <div class="col-md-3">
+        <h5 class="pt-3"><strong style="color:#00BA51;">List request {{list.length}}</strong></h5>
       </div>
-      <div class="col s9">
-        <button
-          @click="locatePlace"
-          class="btn waves-effect waves-light"
-          type="button"
-          name="action"
-        >Locate this
-          <i class="material-icons right">add_location</i>
-        </button>
-      </div>
-    </div>
-    <div class="col s3">
-      <div>
-        <div id="containlist">
-          <ul class="collection">
-            <li
-              v-for="c in list"
-              :key="c.Id"
-              href="javascript:;"
-              class="collection-item avatar"
-              @click="getThisPlace(c.Id,c.Address)"
-            >
-              <div class="card">
-                <div class="card-content">
-                  <span class="title">Ho ten: {{c.Name}}</span>
-                  <p>Dia diem: {{c.Address}} <br>
-                    Ghi chu: {{c.Note}}
-                  </p>
-                  <a
-                    href="#!"
-                    class="secondary-content"
-                  ><i class="material-icons">location_searching</i></a>
-                </div>
-              </div>
-            </li>
-          </ul>
+      <div class="col-md-9">
+        <div
+          class="row "
+          style="padding-left: 15px;"
+        >
+          <button
+            @click="locatePlace"
+            class="btn btn-success btn-rounded waves-effect"
+            type="button"
+            name="action"
+          ><i
+              class="fas fa-cogs pr-2"
+              aria-hidden="true"
+            ></i>Locate this
+          </button>
+
         </div>
       </div>
-
     </div>
-    <div class="col s9">
-      <div id="myMap">
-        <gmap-map
-          :center="center"
-          :zoom="12"
-          style="width:100%;  height: 400px;"
-          ref="mapRef"
+    <div class="row">
+      <div
+        class="col-md-3"
+        style="height: 500px; overflow-y: auto;"
+      >
+
+        <div
+          class="list-group hoverable"
+          v-for="c in list"
+          :key="c.Id"
+          href="javascript:;"
+          :class="{active: c.Id === selectedId}"
+          @click="getThisPlace(c.Id,c.Address)"
         >
-          <!-- <gmap-marker
-            :key="index"
-            v-for="(m, index) in markers"
-            :position="m.position"
-            @click="center=m.position"
-            :draggable="true"
-            @drag="updateCoordinates"
-          ></gmap-marker> -->
-          <gmap-marker
-            ref="myMarker"
-            :draggable="true"
-            v-bind:position="coordinates"
-            :icon="{ url: require('../assets/automobile.png')}"
-            @dragend="updateCoordinates"
-          ></gmap-marker>
-        </gmap-map>
+          <!-- Item -->
+          <a
+            target="_blank"
+            href="javascript:;"
+            class="card  mb-1  list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+          >
+            <div>
+              <p class="green-text mb-0"><i class="fa fa-user"></i>
+                <font class="black-text font-weight-bold"> {{c.Name}}</font>
+              </p>
+              <p class="green-text mb-0"><i class="fa fa-map-marker"></i>
+                <font class="black-text "> {{c.Address}}</font>
+              </p>
+              <p class="green-text mb-0"><i class="fa fa-phone"></i>
+                <font class="black-text"> {{c.Phone}}</font>
+              </p>
+              <p class="green-text mb-0"><i class="fa fa-sticky-note"></i>
+                <font class="black-text"> {{c.Note}}</font>
+              </p>
+
+            </div>
+
+            <i
+              class="fa fa-chevron-right"
+              style="font-size: 1.3rem;"
+            ></i>
+          </a>
+          <!-- Item -->
+        </div>
+
+      </div>
+      <div class="col-md-9">
+
+        <div id="myMap">
+
+          <gmap-map
+            :center="center"
+            :zoom="12"
+            style="width:100%;  height: 400px;"
+            ref="mapRef"
+          >
+            <gmap-marker
+              ref="myMarker"
+              :draggable="true"
+              v-bind:position="coordinates"
+              @dragend="updateCoordinates"
+            ></gmap-marker>
+            <!-- :icon="{ url: require('../assets/automobile.png')}" -->
+          </gmap-map>
+        </div>
       </div>
     </div>
+
   </div>
+
 </template>
 
 <script>
@@ -106,7 +125,7 @@ export default {
 	mounted() {
 		var self = this;
 		axios
-			.get('http://localhost:1234/Request')
+			.get('http://localhost:1234/Request/req-unidentified')
 			.then(res => {
 				self.list = res.data;
 			})
@@ -117,9 +136,9 @@ export default {
 
 		self.socket.on('load-new-request', data => {
 			console.log(data);
-			//alert('receive');
 			self.list = data;
 		});
+		
 		self.$refs.mapRef.$mapPromise.then(map => {
 			self.marker = self.$refs.myMarker.$markerObject;
 			console.log(self.marker);
@@ -156,10 +175,32 @@ export default {
 				lat: location.latLng.lat(),
 				lng: location.latLng.lng()
 			};
+			toastr.remove();
+			toastr.clear();
+			toastr.success('Changed location success', {
+				autoDismiss: true,
+				maxOpened: 1,
+				newestOnTop: true,
+				extendedTimeOut: 1000,
+				tapToDismiss: true,
+				timeOut: 1000
+			});
+			//toastr.clear()
+			//toastr.success('Changed location success', { timeOut: 3000 });
+			// toastr.success('Hello World', 'New Message', { timeOut: 9500 });
 		},
 
 		locatePlace() {
+			toastr.remove();
+			toastr.clear();
+
 			var self = this;
+
+			if (!self.coordinates) {
+				toastr.error('Located fail', { timeOut: 3000 });
+				return;
+			}
+
 			var objToPost = {
 				Id: self.selectedId,
 				Lat: self.coordinates.lat,
@@ -173,7 +214,7 @@ export default {
 				Lng: self.coordinates.lng
 			};
 			self.socket.emit('identify-location', newReq);
-			M.toast({ html: 'Located Success', classes: 'light-blue accent-3' });
+			toastr.success('Located success', { timeOut: 3000 });
 		},
 
 		geolocate: function() {
@@ -192,11 +233,14 @@ export default {
     
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-#myMap {
-	height: 400px; /* The height is 400 pixels */
-	width: 100%; /* The width is the width of the web page */
+.card {
+	flex-direction: unset;
 }
-#mapcomp {
+#myMap {
+	height: 500px;
+	width: 100%;
+}
+/*#mapcomp {
 	width: 600px;
 }
 #containlist {
@@ -224,5 +268,5 @@ a {
 }
 .card {
 	margin: 0rem 0 0rem 0;
-}
+} */
 </style>

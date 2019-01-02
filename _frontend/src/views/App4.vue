@@ -1,20 +1,20 @@
 <template>
-  <div class="row">
-    <div class="col s4">
-      <button @click="logout">log out</button>
-      <button @click="vieww">view</button>
-
-    </div>
-    <div class="col s4">
-
+  <div
+    class="col s4"
+    style="margin:0 auto;"
+  >
+    <div class="row d-flex justify-content-center">
       <button
         id="btnOn"
         class="btn waves-effect waves-light cyan pulse green"
         type="button"
         name="action"
         @click="changeStatus(1)"
-      >Online
-        <i class="material-icons right">power_settings_new</i>
+      ><i
+          class="fa fa-power-off"
+          aria-hidden="true"
+        ></i>
+        OFFLINE
       </button>
 
       <button
@@ -22,83 +22,137 @@
         class="btn waves-effect waves-light pulse green"
         type="button"
         name="action"
-        style="opacity: .4;"
+        style="opacity: .4;display:none"
         @click="changeStatus(0)"
-      >Offline
-        <i class="material-icons right">power_settings_new</i>
+      >READY
       </button>
 
-      <gmap-map
-        ref="mapRef"
-        :center="center"
-        :zoom="18"
-        style="width:100%;  height: 500px;"
-      >
-        <!-- <gmap-circle
-          ref="circle"
-          :radius="100"          
-          v-bind:center="center"
-          :draggable='false'
-        /> -->
-        <gmap-marker
-          ref="myMarker"
-          v-bind:position="coordinates"
-          :draggable="true"
-          :icon="{ url: require('../assets/automobile.png')}"
-          @dragend="updateCoordinates"
-        ></gmap-marker>
-      </gmap-map>
-      <div
-        class="=row"
-        id='modelRequest'
-      >
-        <button
-          class="btn waves-effect waves-light green nodpadd"
-          @click="acceptRequest()"
-          type="button"
-          style="height: 50px;"
-        >
-          Accept<i class="material-icons left">check</i></button>
-        <button
-          class="btn waves-effect waves-light red nodpadd"
-          @click="declineRequest()"
-          type="button"
-          style="height: 50px;"
-        >
-          Decline<i class="material-icons left">block</i></button>
-      </div>
-      <div
-        class="row"
-        id='modelProcess'
-      >
-        <button
-          id='btnStart'
-          @click="startRequest"
-          class="btn  waves-effect waves-light green  nodpadd"
-          type="button"
-          style="height: 50px;"
-        >Start</button>
-        <button
-          id='btnEnd'
-          @click="doneRequest"
-          class="btn waves-effect waves-light grey  pulse nodpadd"
-        >End</button>
-      </div>
-
+      <button
+        id="btnChangePlace"
+        class="btn btn-primary"
+        type="button"
+        name="action"
+        @click="changePlace"
+      >Change Position
+      </button>
+      <button
+        id="btnSave"
+        class="btn btn-primary"
+        type="button"
+        name="action"
+        style="display:none"
+        @click="savechange"
+      >OK
+      </button>
     </div>
+    <gmap-map
+      ref="mapRef"
+      :center="center"
+      :zoom="18"
+      style="width:100%;  height: 400px;"
+    >
+      <gmap-marker
+        ref="myMarker"
+        v-bind:position="coordinates"
+        :draggable="true"
+        :icon="{ url: require('../assets/automobile.png')}"
+        @dragend="updateCoordinates"
+      ></gmap-marker>
+    </gmap-map>
 
-    <div class="col s4">
+    <!-- Button trigger modal -->
+    <button
+      type="button"
+      class="btn btn-primary"
+      data-toggle="modal"
+      @click="openmodal"
+    >
+      Launch demo modal
+    </button>
 
+    <!-- Modal -->
+    <div
+      class="modal fade"
+      id="modalreq"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="exampleModalLabel"
+      aria-hidden="true"
+    >
+      <div
+        class="modal-dialog"
+        role="document"
+      >
+        <div class="modal-content">
+          <div class="modal-body">
+            <div class="col-lg-7">
+
+              <!-- Category -->
+              <a
+                href="#!"
+                class="indigo-text"
+              >
+                <h6 class="font-weight-bold mb-1"><i class="fas fa-suitcase pr-2"></i>New Request</h6>
+              </a>
+              <!-- Post title -->
+              <h5 class="mb-2">Dia chi khach hang</h5>
+              <h5 class="mb-2">Cach 10km</h5>
+              <h5 class="mb-2">SDT</h5>
+              <h5 class="mb-2">Ghi chu</h5>
+
+            </div>
+            <!-- Grid column -->
+            <div
+              id="modelRequest1"
+              class="btn-group"
+              role="group"
+              style="width: 100%;"
+            >
+              <button
+                type="button"
+                class="btn btn-success btnm"
+                @click="acceptRequest()"
+              >Accept</button>
+              <button
+                type="button"
+                class="btn btn-red btnm"
+                @click="declineRequest()"
+              >Decline</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      style="width: 100%;display:none"
+      id="modelProcess"
+    >
+      <button
+        id='btnStart'
+        @click="startRequest"
+        class="btn waves-effect waves-light green"
+        type="button"
+        style="height: 50px;width: 100%;"
+      >
+        Start</button>
+      <button
+        id='btnEnd'
+        @click="doneRequest"
+        class="btn waves-effect waves-light green"
+        type="button"
+        style="height: 50px;width: 100%;display:none"
+      >
+        Done</button>
     </div>
   </div>
+
 </template>
 
 <script>
-
 import axios from 'axios';
 import io from 'socket.io-client';
 import haversine from 'haversine';
-import $ from 'jquery';
+import $AB from 'jquery';
 export default {
 	name: 'App4',
 
@@ -106,17 +160,22 @@ export default {
 		return {
 			isOnline: false,
 			timeOut: null,
-
+			isDismiss: 0,
+			isChangePosition: 0,
 			directionsDisplay: null,
-			center: { lat: 10.77191, lng: 106.65358 },
+			//center: { lat: 10.77191, lng: 106.65358 },
+			center: { lat: null, lng: null },
+			tempPosition: null,
 			markers: [],
+			circle: null,
 			places: [],
-			coordinates: { lat: 10.77191, lng: 106.65358 },
+			// coordinates: { lat: 10.77191, lng: 106.65358 },
+			coordinates: { lat: null, lng: null },
 			currentPlace: null,
 			fillColor1: '#0000FF',
 
 			customer_LatLng: {},
-
+			driver: null,
 			req_id: null,
 			req_for_driver: {},
 			socket: io('localhost:1234')
@@ -126,6 +185,12 @@ export default {
 
 	mounted() {
 		var self = this;
+
+		$AB(document).ready(function() {
+			$('#modalreq').on('hidden.bs.modal', function() {
+				if (self.isDismiss == 1) self.declineRequest();
+			});
+		});
 		// if (localStorage.token_key && localStorage.ref_token && localStorage.uid) {
 		// 	axios({
 		// 		method: 'post',
@@ -159,12 +224,13 @@ export default {
 		// At this point, the child GmapMap has been mounted, but
 		// its map has not been initialized.
 		// Therefore we need to write mapRef.$mapPromise.then(() => ...)
+		self.driver = JSON.parse(localStorage.getItem('UserObj'));
 		self.$refs.mapRef.$mapPromise
 			.then(map => {
 				//map.panTo({ lat: 1.38, lng: 103.8 });
 				self.directionsDisplay = new google.maps.DirectionsRenderer();
 				console.log('success set self.directionsDisplay');
-				var circle = new google.maps.Circle({
+				self.circle = new google.maps.Circle({
 					center: self.center,
 					radius: 100,
 					fillColor: '#0000FF',
@@ -189,15 +255,14 @@ export default {
 				console.log('error ' + err);
 			});
 
-		$('#btnOff').hide();
-		$('#btnOn').show();
-
 		self.socket.on('hi there 2', data => {
 			//respone from server socket
 			console.log('respone from server socket');
 		});
 
-		self.socket.emit('add-user', { username: localStorage.uid }); //register username to socket server
+		self.socket.emit('add-user', { username: self.$store.state.user.Id }); //register username to socket server
+		console.log('add user socket' + self.$store.state.user.Id);
+
 		self.socket.on('driver-receive-new-request', data => {
 			var self = this;
 			self.customer_LatLng = null;
@@ -208,7 +273,7 @@ export default {
 				lng: data.Lng
 			};
 			self.req_for_driver = {
-				u_id: localStorage.uid,
+				u_id: self.$store.state.user.Id,
 				req_id: data.Id
 			};
 			self.showNewRequest();
@@ -217,39 +282,93 @@ export default {
 	},
 
 	methods: {
-		acceptRequest() {
-			$('#modelRequest').fadeOut();
+		changePlace() {
 			var self = this;
+			$('#btnSave').show();
+			$('#btnChangePlace').hide();
+			self.isChangePosition = 1;
+			self.tempPosition = self.center;
+		},
+		changePosition(location) {
+			var self = this;
+			self.tempPosition = {
+				lat: location.latLng.lat(),
+				lng: location.latLng.lng()
+			};
+		},
+		savechange() {
+			var self = this;
+			self.isChangePosition = 0;
+			self.coordinates = self.tempPosition;
+			self.center = self.tempPosition;
+			var marker = self.$refs.myMarker.$markerObject;
+			marker.setPosition(self.center);
+			self.circle.setCenter(self.center);
+
+			var newReq = {
+				Id: self.$store.state.user.Id,
+				Lat: self.coordinates.lat,
+				Lng: self.coordinates.lng
+			};
+			self.socket.emit('driver-change-location', newReq);
+			$('#btnSave').hide();
+			$('#btnChangePlace').show();
+		},
+		openmodal() {
+			$('#modalreq').modal('show');
+		},
+		acceptRequest() {
+			var self = this;
+			self.isDismiss = 0;
+			$('#modalreq').modal('hide');
 			clearTimeout(self.timeOut);
 			console.log('driver accept request');
 			console.log(self.req_for_driver);
 			self.socket.emit('driver-accept-request', self.req_for_driver);
-			self.showDirectionFromDriverToCustomer();			
+			self.showDirectionFromDriverToCustomer();
 			$('#modelProcess').fadeIn();
+
+			toastr.remove();
+			toastr.clear();
+			toastr.success('Accept request success', { timeOut: 500 });
 		},
 		declineRequest() {
-			$('#modelRequest').fadeOut();
-			alert('driver decline request');
+			var self = this;
+			self.isDismiss = 0;
+			$('#modalreq').modal('hide');
+			clearTimeout(self.timeOut);
+			self.socket.emit('driver-decline-request', self.req_for_driver);
+
+			toastr.remove();
+			toastr.clear();
+			toastr.error('You decline request', { timeOut: 500 });
 		},
 		startRequest() {
 			var self = this;
 			self.socket.emit('driver-start-request', self.req_for_driver);
-			document.getElementById('btnEnd').disabled = false;
+
+			$('#btnStart').hide();
+			$('#btnEnd').show();
 		},
 		doneRequest() {
 			var self = this;
 			self.socket.emit('driver-done-request', self.req_for_driver);
 			self.updateDriverLocationAfterDone();
 			self.directionsDisplay.setMap(null); //delete previous direction
-			alert('done');
+
+			toastr.success('Done request', { timeOut: 3000 });
 			$('#modelProcess').fadeOut();
+
+			$('#btnStart').show();
+			$('#btnEnd').hide();
 		},
 		showNewRequest() {
 			var self = this;
-			$('#modelRequest').fadeIn();
+			self.isDismiss = 1;
+			$('#modalreq').modal('show');
 			self.timeOut = setTimeout(function() {
 				self.declineRequest();
-			}, 10000);
+			}, 5000);
 		},
 		checc() {
 			alert('Your toast was');
@@ -345,8 +464,15 @@ export default {
 			console.log(this.coordinates);
 			console.log(this.center);
 		},
+
 		updateCoordinates(location) {
+			toastr.remove();
+			toastr.clear();
 			var self = this;
+			if (self.isChangePosition == 1) {
+				self.changePosition(location);
+				return;
+			}
 			var center_coordinates = {
 				latitude: self.center.lat,
 				longitude: self.center.lng
@@ -355,6 +481,7 @@ export default {
 				latitude: location.latLng.lat(),
 				longitude: location.latLng.lng()
 			};
+
 			//console.log(haversine(center_coordinates, new_coordinates, { unit: 'meter' }));
 			//console.log(haversine(center_coordinates, new_coordinates, {threshold: 100,unit: 'meter'}));
 			//console.log('1center ' +center_coordinates.latitude +',' + center_coordinates.longitude );
@@ -371,16 +498,17 @@ export default {
 					lat: location.latLng.lat(),
 					lng: location.latLng.lng()
 				};
-				//alert('Success');
+				toastr.success('Changed location success', { timeOut: 500 });
 				console.log('change location success');
+				var driver = self.$store.state.user;
 				var newReq = {
-					Id: 1,
+					Id: driver.Id,
 					Lat: self.coordinates.lat,
 					Lng: self.coordinates.lng
 				};
 				self.socket.emit('driver-change-location', newReq);
 			} else {
-				alert('Error : maximum is 100m !!');
+				toastr.error('Error : maximum is 100m !');
 				self.coordinates = self.center;
 				var marker = self.$refs.myMarker.$markerObject;
 				marker.setPosition(self.center);
@@ -404,8 +532,33 @@ export default {
 		},
 
 		geolocate() {
+			var self = this;
 			return new Promise((resolve, reject) => {
-				navigator.geolocation.getCurrentPosition(position => {});
+				navigator.geolocation.getCurrentPosition(position => {
+					if (
+						self.$store.state.user.Lat == null ||
+						self.$store.state.user.Lat == ''
+					) {
+						self.center = {
+							lat: position.coords.latitude,
+							lng: position.coords.longitude
+						};
+						self.coordinates = self.center;
+						var newReq = {
+							Id: self.$store.state.user.Id,
+							Lat: self.coordinates.lat,
+							Lng: self.coordinates.lng
+						};
+						console.log('Location default');
+						setTimeout(function() {
+							self.socket.emit('driver-change-location', newReq);
+						}, 2000);
+					} else {
+						console.log('lat not null');
+						console.log(self.$store.state.user.Lat)
+					}
+					//console.log(position);
+				});
 				resolve();
 			});
 		}
@@ -415,20 +568,27 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style >
+.btnm {
+	width: 50%;
+}
+.modal-body {
+	padding: 0px !important;
+	padding-top: 1rem !important;
+}
 /* .ddriver {
 	padding: 0 !important;
 }*/
-.nodpadd {
+/* .nodpadd {
 	border-radius: 0px !important;
 	width: 50%;
-}
+} */
 
 /* .btn, .btn-large, .btn-small, .btn-flat {
     border: none;
      border-radius: 0px !important; 
      padding: 0 0 !important
 } */
-h3 {
+/* h3 {
 	margin: 40px 0 0;
 }
 ul {
@@ -441,5 +601,5 @@ li {
 }
 a {
 	color: #42b983;
-}
+} */
 </style>
