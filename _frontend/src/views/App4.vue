@@ -3,7 +3,7 @@
     class="col s4"
     style="margin:0 auto;"
   >
-    <div id="dStatus" class="row d-flex justify-content-center cus-scrollbar style-1">
+    <div id="dStatus" class="row d-flex justify-content-center">
       <button
         id="btnOn"
         class="btn waves-effect waves-light btn-success"
@@ -98,10 +98,11 @@
                 <h6 class="font-weight-bold mb-1"><i class="fas fa-suitcase pr-2"></i>Nhận được yêu cầu mới</h6>
               </a>
               <!-- Post title -->
-              <h5 class="mb-2">Vị trí: </h5>
-              <h5 class="mb-2">Cách: 10km</h5>
-              <h5 class="mb-2">SĐT: </h5>
-              <h5 class="mb-2">Ghi chú</h5>
+							<h5 class="mb-2">Tên: {{resquestR.Name}}</h5>
+              <h5 class="mb-2">Vị trí: {{resquestR.Address}}</h5>
+              <h5 class="mb-2">Cách: {{resquestR.Long}}Km</h5>
+              <h5 class="mb-2">SĐT: {{resquestR.Phone}}</h5>
+              <h5 class="mb-2">Ghi chú: {{resquestR.Note}}</h5>
 
             </div>
             <!-- Grid column -->
@@ -177,7 +178,14 @@ export default {
 			driver: null,
 			req_id: null,
 			req_for_driver: {},
-			socket: io('localhost:1234')
+			socket: io('localhost:1234'),
+			resquestR:{
+				Name:null,
+				Address:null,
+				Phone:null,
+				Note:null,
+				Long:null,
+			},
 			//mapSettings
 		};
 	},
@@ -267,6 +275,14 @@ export default {
 				lat: data.Lat,
 				lng: data.Lng
 			};
+			var long = data.Long.toFixed(1);
+			self.resquestR={
+				Name:data.Name,
+				Address:data.Address,
+				Phone:data.Phone,
+				Note:data.Note,
+				Long:long,
+			}
 			self.req_for_driver = {
 				u_id: self.$store.state.user.Id,
 				req_id: data.Id,

@@ -6,9 +6,6 @@ const express = require('express'),
     config = require('./fn/config'),
     PORT = process.env.PORT || 1234;
 
-
-//var io = require('socket.io', { origins: "*" }).listen(PORT + 1);
-
 var requestCtrl = require('./apiCtrl/requestCtrl'),
     userCtrl = require('./apiCtrl/userCtrl'),
     authCtrl = require('./apiCtrl/authCtrl'),
@@ -17,6 +14,25 @@ var requestCtrl = require('./apiCtrl/requestCtrl'),
 var AuthRepo = require('./repo/authRepos');
 
 var app = express();
+
+app.use(function (req, res, next) {
+
+    // Website you wish to allow to connect
+    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:1234');
+
+    // Request methods you wish to allow
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+
+    // Request headers you wish to allow
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+
+    // Set to true if you need the website to include cookies in the requests sent
+    // to the API (e.g. in case you use sessions)
+    res.setHeader('Access-Control-Allow-Credentials', true);
+
+    // Pass to next layer of middleware
+    next();
+});
 
 app.use(morgan('dev'));
 app.use(cors());
@@ -34,18 +50,14 @@ app.get('/', (req, res) => {
     });
 })
 
-
 const server = app.listen(PORT, () => {
     console.log('Server running at localhost:' + PORT);
 });
 
 const io = require('socket.io')(server);
 
-var clients = [];
 io.on('connection', client => {
     request_io.response(io, client);
     console.log('id : '+client.id)
-    //clients.push(client.id);
-    //client.emit('hi there', JSON.stringify('user'));    
 });
 

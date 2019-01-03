@@ -33,7 +33,8 @@
       >
 
         <div
-          class="mt-3 list-group hoverable style-1  " style="height: 130px;overflow-y: auto;overflow-x: hidden"
+          class="mt-3 list-group hoverable style-1  "
+          style="height: 130px;overflow-y: auto;overflow-x: hidden"
           v-for="c in list"
           :key="c.Id"
           href="javascript:;"
@@ -119,19 +120,14 @@ export default {
 
 	mounted() {
 		var self = this;
-		axios
-			.get('http://localhost:1234/Request/req-unidentified')
-			.then(res => {
-				self.list = res.data;
-			})
-			.catch(err => {
-				console.log(err);
-			});
+
+		self.loadlist();
+
 		self.geolocate(); // map
 
 		self.socket.on('load-new-request', data => {
 			// console.log(data);
-			self.list = data;
+			self.list = data.data;
 		});
 
 		self.$refs.mapRef.$mapPromise.then(map => {
@@ -141,6 +137,34 @@ export default {
 	},
 
 	methods: {
+		loadlist() {
+			var self = this;
+
+			axios({
+				method: 'get',
+				url: 'http://localhost:1234/Request/req-unidentified',
+				data: {},
+				headers: {
+					'x-access-token': self.$store.state.token
+				}
+			})
+				.then(data => {
+					self.list = data.data;
+				})
+				.catch(err => {
+					self
+						.get_new_access_token(
+							self.$store.state.user.ref_token,
+							self.$store.state.user.Id
+						)
+						.then(user => {
+							self.loadlist();
+						})
+						.catch(err => {
+							self.$router.push({ name: '/' });
+						});
+				});
+		},
 		getThisPlace(id, place) {
 			var self = this;
 			self.selectedId = id;
@@ -215,6 +239,16 @@ export default {
 					lat: position.coords.latitude,
 					lng: position.coords.longitude
 				};
+			});
+		},
+		get_new_access_token(rf, id) {
+			return axios({
+				method: 'post',
+				url: 'http://127.0.0.1:1234/Auth/new_token',
+				data: {
+					ref_token: rf,
+					id: id
+				}
 			});
 		}
 	}
