@@ -100,7 +100,7 @@
               <!-- Post title -->
 							<h5 class="mb-2">Tên: {{resquestR.Name}}</h5>
               <h5 class="mb-2">Vị trí: {{resquestR.Address}}</h5>
-              <h5 class="mb-2">Cách: {{resquestR.Long}}Km</h5>
+              <!-- <h5 class="mb-2">Cách: {{resquestR.Long}}Km</h5> -->
               <h5 class="mb-2">SĐT: {{resquestR.Phone}}</h5>
               <h5 class="mb-2">Ghi chú: {{resquestR.Note}}</h5>
 
@@ -197,36 +197,7 @@ export default {
 			$('#modalreq').on('hidden.bs.modal', function() {
 				if (self.isDismiss == 1) self.declineRequest();
 			});
-		});
-		// if (localStorage.token_key && localStorage.ref_token && localStorage.uid) {
-		// 	axios({
-		// 		method: 'post',
-		// 		url: 'http://localhost:1234/User/auth',
-		// 		data: {},
-		// 		headers: {
-		// 			'x-access-token': localStorage.token_key
-		// 		}
-		// 	})
-		// 		.then(data => {
-		// 			self.loadData(localStorage.token_key);
-		// 			//self.driver.status =  parseInt( localStorage.driver_status);
-		// 		})
-		// 		.catch(err => {
-		// 			self
-		// 				.get_new_access_token(localStorage.ref_token, localStorage.uid)
-		// 				.then(user => {
-		// 					self.loadData(user.data.access_token);
-		// 					//self.driver.status = user.data.status;
-		// 				})
-		// 				.catch(err => {
-		// 					//console.log('err catch' + err);
-		// 					self.$router.push({ name: 'Login' });
-		// 				});
-		// 			console.log('get new access token');
-		// 		});
-		// } else {
-		// 	self.$router.push({ name: 'Login' });
-		// }
+		});		
 
 		// At this point, the child GmapMap has been mounted, but
 		// its map has not been initialized.
@@ -375,6 +346,7 @@ export default {
 			self.socket.emit('driver-done-request', self.req_for_driver);
 			self.updateDriverLocationAfterDone();
 			self.directionsDisplay.setMap(null); //delete previous direction
+			self.circle.setCenter(self.center);
 
 			toastr.success('Bạn đã hoàn thành chuyến.', { timeOut: 3000 });
 			$('#modelProcess').fadeOut();

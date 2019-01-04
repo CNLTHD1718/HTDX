@@ -5,7 +5,7 @@
   >
     <div class="row">
       <div class="col-md-3">
-        <h5 class="pt-3"><strong style="color:#00BA51;">Danh sách yêu cầu {{list.length}}</strong></h5>
+        <h5 class="pt-3"><strong style="color:#00BA51;">Danh sách yêu cầu </strong></h5>
       </div>
       <div class="col-md-9">
         <div
@@ -33,8 +33,8 @@
       >
 
         <div
-          class="mt-3 list-group hoverable style-1  "
-          style="height: 130px;overflow-y: auto;overflow-x: hidden"
+          class="mt-1 list-group  style-1 	p-1 "
+          style=""
           v-for="c in list"
           :key="c.Id"
           href="javascript:;"
@@ -45,7 +45,7 @@
           <a
             target="_blank"
             href="javascript:;"
-            class="card  list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+            class="card hoverable list-group-item list-group-item-action d-flex justify-content-between align-items-center"
           >
             <div>
               <p class="green-text mb-0"><i class="fa fa-user"></i>
@@ -114,7 +114,8 @@ export default {
 			Rcoordinates: null,
 			currentPlace: null,
 			marker: null,
-			socket: io('localhost:1234')
+			socket: io('localhost:1234'),
+			 infowindow : new google.maps.InfoWindow()
 		};
 	},
 
@@ -126,8 +127,8 @@ export default {
 		self.geolocate(); // map
 
 		self.socket.on('load-new-request', data => {
-			// console.log(data);
-			self.list = data.data;
+			console.log('load-new-request ',data);
+			self.list = data;
 		});
 
 		self.$refs.mapRef.$mapPromise.then(map => {
@@ -154,14 +155,30 @@ export default {
 				.catch(err => {
 					self
 						.get_new_access_token(
-							self.$store.state.user.ref_token,
+							self.$store.state.rfToken,
 							self.$store.state.user.Id
 						)
-						.then(user => {
-							self.loadlist();
+						.then(data => {
+							console.log('update token');
+							self.$store
+								.dispatch('updatetoken', data)
+								.then(() => {
+									console.log('update token success');
+									self.loadlist();
+								})
+								.catch(err => {
+									console.log('err ' + err);
+								});
 						})
 						.catch(err => {
-							self.$router.push({ name: '/' });
+							self.$store
+								.dispatch('logout')
+								.then(() => {
+									self.$router.push({ name: 'Login' });
+								})
+								.catch(err => {
+									console.log('err ' + err);
+								});
 						});
 				});
 		},
@@ -193,15 +210,42 @@ export default {
 				lat: location.latLng.lat(),
 				lng: location.latLng.lng()
 			};
-			toastr.remove();
-			toastr.clear();
-			toastr.success('Thay đổi vị trí thành công.', {
-				autoDismiss: true,
-				maxOpened: 1,
-				newestOnTop: true,
-				extendedTimeOut: 1000,
-				tapToDismiss: true,
-				timeOut: 1000
+			var geocoder = new google.maps.Geocoder();
+			var latlng = { lat: location.latLng.lat(), lng: location.latLng.lng() };
+			geocoder.geocode({ location: latlng }, function(results, status) {
+				if (status === 'OK') {
+					if (results[0]) {
+						console.log(results[0]);
+						var address = results[0].formatted_address;
+						var marker2 = self.$refs.myMarker.$markerObject;
+						
+						var map = self.$refs.mapRef.$mapObject;
+						self.infowindow.setContent('');
+						self.infowindow.setContent(results[0].formatted_address);
+						self.infowindow.open(map, marker2);
+						// toastr.remove();
+						// toastr.clear();
+						// toastr.success(address, {
+						// 	autoDismiss: true,
+						// 	maxOpened: 1,
+						// 	newestOnTop: true,
+						// 	extendedTimeOut: 1000,
+						// 	tapToDismiss: true,
+						// 	timeOut: 1000
+						// });
+						// map.setZoom(11);
+						// var marker = new google.maps.Marker({
+						//   position: latlng,
+						//   map: map
+						// });
+						// infowindow.setContent(results[0].formatted_address);
+						// infowindow.open(map, marker);
+					} else {
+						window.alert('No results found');
+					}
+				} else {
+					window.alert('Geocoder failed due to: ' + status);
+				}
 			});
 		},
 
